@@ -1,0 +1,39 @@
+name: CI/CD for HTML Page
+
+on:
+  push:
+    branches:
+      - main  # Change to "master" if your repo uses that
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Upload artifact to enable deployment
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-files
+          path: |
+            ./*.html  # Ensure all HTML files are uploaded
+            ./*.css   # Include CSS files if any
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for deploying to GitHub Pages
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: html-files
+          path: ./html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.NEWKEY }}  # Use GitHub's default token
+          publish_dir: ./html
