@@ -6,39 +6,49 @@ on:
       - main  # Change to "master" if your repo uses that
 
 jobs:
+  # Build Job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # Latest version
+        uses: actions/checkout@v4  # Updated to v4
 
-      - name: Verify Files Exist
-        run: ls -R  # Lists all files to debug missing files
+      - name: Verify Files Exist Before Upload
+        run: ls -R  # Debugging step to ensure files exist
+
+      - name: Check if index.html exists
+        run: |
+          if [ ! -f index.html ]; then
+            echo "index.html not found!"
+            exit 1
+          else
+            echo " index.html found!"
+          fi
 
       - name: Upload artifact to enable deployment
-        uses: actions/upload-artifact@v4  # Updated from v3 to v4
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
-          name: html-files
-          path: |
-            index.html  # Upload index.html 
+          name: html-file
+          path: ./index.html  # Ensure correct path
 
+  # Deploy Job
   deploy:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Required for deploying to GitHub Pages
+      contents: write  # Required for GitHub Pages deployment
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4  # Updated from v3 to v4
+        uses: actions/download-artifact@v4  # Updated to v4
         with:
-          name: html-files
+          name: html-file
           path: ./html
 
       - name: Verify Downloaded Files
-        run: ls -R ./html  # Debugging step to check if files exist
+        run: ls -R ./html  # Debugging step
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4  # Latest version
+        uses: peaceiris/actions-gh-pages@v4  # Updated to v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./html
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Use built-in token
+          publish_dir: ./html  # Ensure correct path
