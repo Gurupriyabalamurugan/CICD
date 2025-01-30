@@ -10,15 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # Updated to latest version
+        uses: actions/checkout@v4  # Latest version
+
+      - name: Verify Files Exist
+        run: ls -R  # Lists all files to debug missing files
 
       - name: Upload artifact to enable deployment
         uses: actions/upload-artifact@v4  # Updated from v3 to v4
         with:
           name: html-files
           path: |
-            ./*.html  # Ensure all HTML files are uploaded
-            ./*.css   # Include CSS files if any
+            index.html  # Upload index.html 
 
   deploy:
     needs: build
@@ -32,8 +34,11 @@ jobs:
           name: html-files
           path: ./html
 
+      - name: Verify Downloaded Files
+        run: ls -R ./html  # Debugging step to check if files exist
+
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4  # Update if necessary
+        uses: peaceiris/actions-gh-pages@v4  # Latest version
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Use GitHub's default token
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./html
